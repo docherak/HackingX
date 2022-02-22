@@ -1,5 +1,5 @@
-#ifndef HELLO_WORLD_H
-#define HELLO_WORLD_H
+#ifndef FANCY_HELLO_WORLD_H
+#define FANCY_HELLO_WORLD_H
 
 /*
    hello_string (...) is a function which takes your NAME as
@@ -8,4 +8,4 @@
 */
 
 void hello_string(char* name, char* output);
-#endif //HELLO_WORLD_H
+#endif //FANCY_HELLO_WORLD_H
