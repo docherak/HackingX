@@ -3,7 +3,14 @@
 #include "fancy-hello-world.h"
 
 int main(void) {
-	char name[101], output[201];		// init variables (parameters)
+	char name[101], output[200];		// init variables (parameters)
+	
+	/* 
+	
+	as the output is used in the strcat() as the destination, it needs to
+	be long enough, so we could append name to it with strcat()
+	
+	*/
 
 	hello_string(name, output);		// call the function
 
@@ -15,8 +22,7 @@ void hello_string(char* name, char* output) {
 	
 	strcpy(name, fgets(name, 101, stdin));	// copy inputted string to "name"
 	strcpy(output, "Hello World, hello ");	// copy the string to output
-	
-	strcat(output, name);			// append name to output
 
-	printf("%s", output);			// print the sentence
+	strcat(output, name);			// append name to output
+	printf("%s\n", output);			// print the sentence + endline	
 }
