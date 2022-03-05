@@ -15,8 +15,12 @@
 /**
  * print the server's information
  */
-void print_idserver(idserver s)
-{
+void print_idserver(idserver s) {
+	printf("Id: %s\n", s.id);
+	printf("Latency (usec): %d\n", s.latency);
+	printf("Region: %s\n", s.region);
+	printf("Status: %s\n", s.status);
+	printf("Nbr of threads: %p\n", s.nthreads);
 }
 
 /**

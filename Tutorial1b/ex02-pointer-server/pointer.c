@@ -38,15 +38,15 @@ int main(int argc, char* argv[]){
 	printf("cmok's nthreads through pointer - second try: %d\n", *s1->nthreads);
 	puts("=========================");
 	puts("");
-//
-//	//step 2: print idserver
-//	puts("========step 2==========");
-//	puts("--results of print_idserver--");
-//	print_idserver(cmok);
-//	puts("==========================");
-//	puts("");
-//
-//
+
+	//step 2: print idserver
+	puts("========step 2==========");
+	puts("--results of print_idserver--");
+	print_idserver(cmok);
+	puts("==========================");
+	puts("");
+
+
 //	//step 3: modification
 //	puts("========step 3==========");
 //	modify(cmok, "cmok", 13000, "unknown");
@@ -89,5 +89,4 @@ int main(int argc, char* argv[]){
 
 	return EXIT_SUCCESS;
 }
-
 
