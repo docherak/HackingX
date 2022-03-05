@@ -15,7 +15,8 @@
 /**
  * print the server's information
  */
-void print_idserver(idserver s) {
+void print_idserver(idserver s)
+{
 	printf("Id: %s\n", s.id);
 	printf("Latency (usec): %d\n", s.latency);
 	printf("Region: %s\n", s.region);
@@ -28,6 +29,9 @@ void print_idserver(idserver s) {
  */
 void modify(idserver s, char *id, int latency, char status[])
 {
+	s.id = id;
+	s.latency = latency;
+	strcpy(s.status, status);
 }
 
 /**
@@ -35,6 +39,9 @@ void modify(idserver s, char *id, int latency, char status[])
  */
 void modify_by_pointer(idserver *s, char *id, int latency, char status[])
 {
+	s->id = id;
+	s->latency = latency;
+	strcpy(s->status, status);
 }
 
 idserver* create_idserver(char *id, char *region, int latency,

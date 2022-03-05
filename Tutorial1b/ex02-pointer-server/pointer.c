@@ -48,18 +48,18 @@ int main(int argc, char* argv[]){
 
 
 //	//step 3: modification
-//	puts("========step 3==========");
-//	modify(cmok, "cmok", 13000, "unknown");
-//
-//	puts("--results of modify--");
-//	print_idserver(cmok);
-//
-//	modify_by_pointer(&cmok,"cmok", 13000, "unknown");
-//	puts("--results of modify_by_pointer--");
-//	print_idserver(cmok);
-//	puts("=======================");
-//	puts("");
-//
+	puts("========step 3==========");
+	modify(cmok, "cmok", 13000, "unknown");
+
+	puts("--results of modify--");
+	print_idserver(cmok);
+
+	modify_by_pointer(&cmok,"cmok", 13000, "unknown");
+	puts("--results of modify_by_pointer--");
+	print_idserver(cmok);
+	puts("=======================");
+	puts("");
+
 //	//step 4: pointers
 //	puts("========step 4========");
 //	albi = cmok;
