@@ -27,11 +27,11 @@ int main(int argc, char* argv[]){
 
 	//step 1: pointer observation
 	puts("=========step 1===========");
-	printf("cmok: %p\n", cmok);
+	printf("cmok: %p\n", &cmok);
 	printf("s1: %p\n", s1);
-	printf("*s1: %p\n", *s1);
+	printf("*s1: %p\n", &*s1);
 	printf("cmok's name : %s\n", cmok.id);
-	printf("cmok's latency: %d \n", cmok.latency);
+	printf("cmok's latency: %d\n", cmok.latency);
 	printf("cmok's nthreads - first try: %d\n", cmok.nthreads);
 	printf("cmok's nthreads - second try: %d\n", *cmok.nthreads);
 	printf("cmok's nthreads through pointer - first try: %d\n", s1->nthreads);
@@ -61,30 +61,32 @@ int main(int argc, char* argv[]){
 	puts("");
 
 //	//step 4: pointers
-//	puts("========step 4========");
-//	albi = cmok;
-//	s2 = &albi;
-//
-//	modify_by_pointer(s2, "albi", 9000, "down");
-//	puts("--*s2--");
-//	print_idserver(*s2);
-//	puts("--albi--");
-//	print_idserver(albi);
-//	puts("--cmok--");
-//	print_idserver(cmok);
-//	puts("=====================");
-//	puts("");
-//
-//
+	puts("========step 4========");
+	albi = cmok;	// simply assigns the value of cmok to albi
+	s2 = &albi;	// store the address of albi in a pointer called s2
+
+	// by modifying the pointer *s2 I also modify albi - they are the same address
+	// cmok stays the same as I only assigned its value to albi and nothing else
+	modify_by_pointer(s2, "albi", 9000, "down");
+	puts("--*s2--");
+	print_idserver(*s2);
+	puts("--albi--");
+	print_idserver(albi);
+	puts("--cmok--");
+	print_idserver(cmok);
+	puts("=====================");
+	puts("");
+
+
 //	//step 5: create idservers
-//	puts("========step 5=======");
-//	int nthreads = 20;
-//
-//	idserver *s3 = create_idserver("thorn", "afr", 5200, "up", &nthreads);
-//	puts("--results of creating ted, printed outside--");
-//	print_idserver(*s3);
-//	puts("=====================");
-//	puts("");
+	puts("========step 5=======");
+	int nthreads = 20;
+	
+	idserver s3 = create_idserver("thorn", "afr", 5200, "up", &nthreads);
+	puts("--results of creating ted, printed outside--");
+	print_idserver(s3);
+	puts("=====================");
+	puts("");
 
 
 	return EXIT_SUCCESS;

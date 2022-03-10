@@ -25,7 +25,7 @@ void modify(idserver s, char *id, int latency, char status[]);
 
 void modify_by_pointer(idserver *s, char *id, int latency, char status[]);
 
-idserver* create_idserver(char *id, char *region, int latency,
+idserver create_idserver(char *id, char *region, int latency,
 		char *status, int *nthreads);
 
 #endif /* IDSERVER_H_ */

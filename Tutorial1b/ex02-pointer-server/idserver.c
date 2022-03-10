@@ -21,12 +21,15 @@ void print_idserver(idserver s)
 	printf("Latency (usec): %d\n", s.latency);
 	printf("Region: %s\n", s.region);
 	printf("Status: %s\n", s.status);
-	printf("Nbr of threads: %p\n", s.nthreads);
+	printf("Nbr of threads: %d\n", *s.nthreads);
 }
 
 /**
  * try to modify the server information
  */
+
+// won't work, because we only edit the idserver s in the scope of the function, therefore
+// there will be no effect out of the function (=out of the scope)
 void modify(idserver s, char *id, int latency, char status[])
 {
 	s.id = id;
@@ -37,6 +40,7 @@ void modify(idserver s, char *id, int latency, char status[])
 /**
  * try to modify the student information using pointer
  */
+
 void modify_by_pointer(idserver *s, char *id, int latency, char status[])
 {
 	s->id = id;
@@ -44,10 +48,11 @@ void modify_by_pointer(idserver *s, char *id, int latency, char status[])
 	strcpy(s->status, status);
 }
 
-idserver* create_idserver(char *id, char *region, int latency,
+// again, s is deallocated as soon as the function exits, I would have to allocate memory to it or
+// declare a global variable
+idserver create_idserver(char *id, char *region, int latency,
 		char *status, int *nthreads)
 {
-
 	idserver s;
 	s.id = id;
 	s.region = region;
@@ -57,5 +62,5 @@ idserver* create_idserver(char *id, char *region, int latency,
 	puts("---print inside create_idserver function---");
 	print_idserver(s);
 	puts("---end of print inside");
-	return &s;
+	return s;
 }
