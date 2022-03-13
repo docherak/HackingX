@@ -28,7 +28,8 @@ void print_idserver(idserver s)
  * try to modify the server information
  */
 
-// won't work, because we only edit the idserver s in the scope of the function, therefore
+// won't work, because we only edit the copy of the idserver s in the scope
+// of the function, therefore
 // there will be no effect out of the function (=out of the scope)
 void modify(idserver s, char *id, int latency, char status[])
 {
@@ -48,8 +49,6 @@ void modify_by_pointer(idserver *s, char *id, int latency, char status[])
 	strcpy(s->status, status);
 }
 
-// again, s is deallocated as soon as the function exits, I would have to allocate memory to it or
-// declare a global variable
 idserver* create_idserver(char *id, char *region, int latency,
 		char *status, int *nthreads)
 {
