@@ -50,17 +50,17 @@ void modify_by_pointer(idserver *s, char *id, int latency, char status[])
 
 // again, s is deallocated as soon as the function exits, I would have to allocate memory to it or
 // declare a global variable
-idserver create_idserver(char *id, char *region, int latency,
+idserver* create_idserver(char *id, char *region, int latency,
 		char *status, int *nthreads)
 {
-	idserver s;
-	s.id = id;
-	s.region = region;
-	s.latency = latency;
-	strncpy(s.status, status, strlen(status)+1);
-	s.nthreads = nthreads;
+	idserver *s =  malloc(sizeof(idserver));
+	s->id = id;
+	s->region = region;
+	s->latency = latency;
+	strncpy(s->status, status, strlen(status)+1);
+	s->nthreads = nthreads;
 	puts("---print inside create_idserver function---");
-	print_idserver(s);
+	print_idserver(*s);
 	puts("---end of print inside");
 	return s;
 }

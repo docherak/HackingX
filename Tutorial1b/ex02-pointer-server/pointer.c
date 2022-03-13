@@ -32,9 +32,9 @@ int main(int argc, char* argv[]){
 	printf("*s1: %p\n", &*s1);
 	printf("cmok's name : %s\n", cmok.id);
 	printf("cmok's latency: %d\n", cmok.latency);
-	printf("cmok's nthreads - first try: %d\n", cmok.nthreads);
+	printf("cmok's nthreads - first try: %p\n", cmok.nthreads);
 	printf("cmok's nthreads - second try: %d\n", *cmok.nthreads);
-	printf("cmok's nthreads through pointer - first try: %d\n", s1->nthreads);
+	printf("cmok's nthreads through pointer - first try: %p\n", s1->nthreads);
 	printf("cmok's nthreads through pointer - second try: %d\n", *s1->nthreads);
 	puts("=========================");
 	puts("");
@@ -82,13 +82,13 @@ int main(int argc, char* argv[]){
 	puts("========step 5=======");
 	int nthreads = 20;
 	
-	idserver s3 = create_idserver("thorn", "afr", 5200, "up", &nthreads);
+	idserver *s3 = create_idserver("thorn", "afr", 5200, "up", &nthreads);
 	puts("--results of creating ted, printed outside--");
-	print_idserver(s3);
+	print_idserver(*s3);
 	puts("=====================");
 	puts("");
 
-
+	free(s3);	
 	return EXIT_SUCCESS;
 }
 
