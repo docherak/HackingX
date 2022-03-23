@@ -23,8 +23,10 @@ int main(int argc, char* argv[])
 		return 1; // main returning non-zero means error
 	}
 
-	char* url = argv[1];
+	char* url = argv[1]; // takes the first argument
 	url_info info;
+	
+	// printf("%s\n", url);
 
 	int ret = parse_url(url, &info);
 	if (ret) {
