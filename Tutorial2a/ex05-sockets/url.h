@@ -19,7 +19,8 @@ struct url_info
 {
 	char* protocol; // protocol type: http, ftp, etc...
 	char* host; // host name
-	int port; 	//port number
+	// int port; 	//port number
+	char* port;
 	char* path; //path without the first '/'
 };
 

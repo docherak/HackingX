@@ -13,6 +13,7 @@
 
 #ifndef WGETX_H_
 #define WGETX_H_
+#include"url.h"
 
 /* Structure used to store the buffer and buffer length when receiving the reply from an http server. */
 typedef struct http_reply {
@@ -54,5 +55,7 @@ char* http_get_request(url_info *info);
  * \return a pointer to the first data byte
  */
 char *read_http_reply(struct http_reply *reply);
+
+char *next_line(char *buff, int len);
 
 #endif /* WGETX_H_ */

@@ -65,14 +65,15 @@ int parse_url(char* url, url_info *info)
 	
 	char *port = strchr(host_name_path,':');
 	if(port == NULL){
-		info->port = 80;
+	//	info->port = 80;
+		info->port = "80";
 	} else {
 		*port = '\0';
-		port = port + 1;
-		if(sscanf(port, "%d", &info->port) != 1) {
-			return PARSE_URL_INVALID_PORT;
+		info->port = port + 1;
+		
+	//	if(sscanf(port, "%d",&info->port) != 1) {
+	//		return PARSE_URL_INVALID_PORT;
 		}
-	}
 		
 	// If everything went well, return 0.
 	return 0;
@@ -85,6 +86,7 @@ void print_url_info(url_info *info){
 	printf("The URL contains following information: \n");
 	printf("Protocol:\t%s\n", info->protocol);
 	printf("Host name:\t%s\n", info->host);
-	printf("Port No.:\t%d\n", info->port);
+	// printf("Port No.:\t%d\n", info->port);
+	printf("Port No.:\t%s\n", info->port);
 	printf("Path:\t\t/%s\n", info->path); // "/" is from here
 }

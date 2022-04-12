@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -23,10 +24,13 @@
 
 #include "url.h"
 #include "wgetX.h"
+#include <stddef.h>
+#define CHUNKSIZE 2048
 
 int main(int argc, char* argv[]) {
+
     url_info info;
-    const char * file_name = "received_page";
+    const char * file_name = "pageOutput";
     if (argc < 2) {
 	fprintf(stderr, "Missing argument. Please enter URL.\n");
 	return 1;
@@ -47,7 +51,9 @@ int main(int argc, char* argv[]) {
     }
 
     //If needed for debug
-    //print_url_info(&info);
+//    print_url_info(&info);
+//    printf("%d\n", ret); 
+//    write_data("filenam", "hello", strlen("hello"));
 
     // Download the page
     struct http_reply reply;
@@ -71,7 +77,7 @@ int main(int argc, char* argv[]) {
     free(reply.reply_buffer);
 
     // Just tell the user where is the file
-    fprintf(stderr, "the file is saved in %s.", file_name);
+    fprintf(stderr, "The file is saved in %s.", file_name);
     return 0;
 }
 
@@ -89,10 +95,39 @@ int download_page(url_info *info, http_reply *reply) {
      *
      */
 
+    // Used video "Network Socket in C" by Endian Tribe as a guide/template for this first part
+    // https://www.youtube.com/watch?v=MOrvead27B4
 
+    int ret = 0;
+    int mySocket;
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    struct addrinfo *result;
+    struct addrinfo *record;
+    
+    hints.ai_family = AF_UNSPEC; // works both for IPv4 and IPv6
+    hints.ai_socktype = SOCK_STREAM;
 
-    /*
-     * To be completed:
+    ret = getaddrinfo(info->host, info->port, &hints, &result);
+    if(ret != 0) {
+	    fprintf(stderr, "Error in resolving hostname");
+	    exit(1);
+    }
+
+    for (record = result; record != NULL; record = record->ai_next) {
+	    mySocket = socket(record->ai_family, record->ai_socktype, record->ai_protocol);
+	    if (mySocket == -1) continue; // could not create socket
+	    if (connect(mySocket, record->ai_addr, record->ai_addrlen) != -1) break;
+    }
+
+    if (record == NULL) {
+	    fprintf(stderr, "Connection failed");
+	    exit(1);
+    }
+   
+    freeaddrinfo(result); 
+
+    /* To be completed:
      *   Next, you will need to send the HTTP request.
      *   Use the http_get_request function given to you below.
      *   It uses malloc to allocate memory, and snprintf to format the request as a string.
@@ -106,8 +141,17 @@ int download_page(url_info *info, http_reply *reply) {
      *   Note4: Free the request buffer returned by http_get_request by calling the 'free' function.
      *
      */
+   
+    // Simply followed your guide + man pages here
 
-
+    char* request = http_get_request(info);
+    size_t reqLen = strlen(request);
+    if (write(mySocket, request, reqLen) == -1) {
+	    fprintf(stderr, "Could not write");
+	    exit(1);
+    }
+    shutdown(mySocket, SHUT_WR);
+    free(request);
 
     /*
      * To be completed:
@@ -131,16 +175,52 @@ int download_page(url_info *info, http_reply *reply) {
      *
      */
 
+    // Using size_t bc of the unknown sizes
 
+    reply->reply_buffer_length = 0;
+    reply->reply_buffer = malloc(sizeof(char[CHUNKSIZE]));
+    
+    size_t bufferLen = CHUNKSIZE;
+    size_t pom = 0;
+    do {
+	    // StackOverflow for the addition in the line below, answe by R Samuel Klatchko
+	    // https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library
+
+	    pom = recv(mySocket, reply->reply_buffer + reply->reply_buffer_length, CHUNKSIZE, 0);
+	    if (pom == -1) {
+		    fprintf(stderr, "Error during recv");
+		    exit(1);
+	    }
+
+	    reply->reply_buffer_length += pom;
+
+	    // Reallocation
+	    if (reply->reply_buffer_length + CHUNKSIZE > bufferLen) {
+		    bufferLen += CHUNKSIZE;
+		    reply->reply_buffer = realloc(reply->reply_buffer, bufferLen);
+	    }
+
+    } while (pom != 0);
 
     return 0;
 }
 
 void write_data(const char *path, const char * data, int len) {
+    
     /*
      * To be completed:
      *   Use fopen, fwrite and fclose functions.
      */
+    
+    FILE *file;
+    
+    file=fopen(path, "w");
+    if(file==NULL) {
+	fprintf(stderr, "Could not open file %s\n", path);
+    	return; 
+    }
+    fwrite(data,sizeof(*data),len,file);
+    fclose(file);	
 }
 
 char* http_get_request(url_info *info) {
@@ -154,11 +234,10 @@ char *next_line(char *buff, int len) {
     if (len == 0) {
 	return NULL;
     }
-
     char *last = buff + len - 1;
     while (buff != last) {
 	if (*buff == '\r' && *(buff+1) == '\n') {
-	    return buff;
+		return buff;
 	}
 	buff++;
     }
@@ -166,7 +245,7 @@ char *next_line(char *buff, int len) {
 }
 
 char *read_http_reply(struct http_reply *reply) {
-
+    
     // Let's first isolate the first line of the reply
     char *status_line = next_line(reply->reply_buffer, reply->reply_buffer_length);
     if (status_line == NULL) {
@@ -189,8 +268,6 @@ char *read_http_reply(struct http_reply *reply) {
 	return NULL;
     }
 
-    char *buf = status_line + 2;
-
     /*
      * To be completed:
      *   The previous code only detects and parses the first line of the reply.
@@ -203,13 +280,24 @@ char *read_http_reply(struct http_reply *reply) {
      *
      *   Keep calling next_line until you read an empty line, and return only what remains (without the empty line).
      *
-     *   Difficul challenge:
+     *   Difficult challenge:
      *     If you feel like having a real challenge, go on and implement HTTP redirect support for your client.
      *
      */
 
-
-
+    char *buf = status_line + 2;
+    
+    int len = reply->reply_buffer_length - (buf - reply->reply_buffer);
+    char *pom;
+    
+    while (buf != NULL) {
+        pom = next_line(buf, len);
+        if (buf == pom) return buf + 2; // minus the first line
+        pom += 2;
+        len -= pom - buf;
+        buf = pom;
+    }
 
     return buf;
 }
+
