@@ -41,7 +41,11 @@ int main(int argc, char* argv[])
 	char message[1024];
 	while (1) {
 		memset(message, 0, 1024);
-		int received = recvfrom(sockfd, message, 1024, 0, (struct sockaddr*)&from, &socksz);		
+		int received = recvfrom(sockfd, (char *)message, 1024, 0, (struct sockaddr*)&from, &socksz);		
+//		message[received] = '\n';
+
+		// Send back to the client
+		int sent = sendto(sockfd, (char *)message, strlen(message), 0, (struct sockaddr*)&from, socksz);		
 		printf("%s", message);
 	}
 

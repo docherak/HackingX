@@ -10,13 +10,13 @@
 #include <errno.h>
 #include <arpa/inet.h>	// inet_pton
 #include <ctype.h>
-
+//https://www.youtube.com/watch?v=lUyaV4haBUE
 int main(int argc, char* argv[])
 {
 	
 	// Input check
 	if (argc < 3) {
-		fprintf(stderr, "Missing arguemnt. Please enter both IP address and a port number.\n");
+		fprintf(stderr, "Missing argument. Please enter both IP address and a port number.\n");
 		return 1;
 	}
 
@@ -34,10 +34,13 @@ int main(int argc, char* argv[])
 	char message[1024];
 	while (1) {
 		memset(message, 0, 1024);
-		printf("Enter the message: \n");
+		printf("Enter the message (type 'exit' to quit): \n");
 		fgets(message, sizeof(message), stdin);
-//		scanf("%s\n", message);
-		int data = sendto(sockfd, message, strlen(message), 0,(struct sockaddr*)&dest, sizeof(dest));		
+		if (strcmp(message, "exit\n") == 0) {
+			close(sockfd);
+			break;
+		}
+		int len = sendto(sockfd, message, strlen(message), 0,(struct sockaddr*)&dest, sizeof(dest));		
 	}
 
 	return 0;
