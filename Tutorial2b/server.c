@@ -1,15 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>	// atoi
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>	// inet_pton
 #include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <ctype.h>
 
 int main(int argc, char* argv[])
 {

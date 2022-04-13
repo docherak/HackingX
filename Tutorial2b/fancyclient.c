@@ -1,15 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>	// atoi
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>	// atoi
-#include <errno.h>
 #include <arpa/inet.h>	// inet_pton
-#include <ctype.h>
+#include <netinet/in.h>
 
 int main(int argc, char* argv[])
 {
@@ -48,6 +44,8 @@ int main(int argc, char* argv[])
 		
 		memset(received, 0, 1024);
 		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, &socksz);
+
+		printf("Server's response: \n");
 		printf("%s", received);
 	}
 

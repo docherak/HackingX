@@ -1,16 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>	// atoi
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>	// atoi
-#include <errno.h>
 #include <arpa/inet.h>	// inet_pton
-#include <ctype.h>
-//https://www.youtube.com/watch?v=lUyaV4haBUE
+#include <netinet/in.h>
+
+// Used ideas from this video
+// https://www.youtube.com/watch?v=lUyaV4haBUE
+
 int main(int argc, char* argv[])
 {
 	
