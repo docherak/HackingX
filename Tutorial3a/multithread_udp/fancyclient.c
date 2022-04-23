@@ -7,6 +7,13 @@
 #include <arpa/inet.h>	// inet_pton
 #include <netinet/in.h>
 
+#include <pthread.h>
+#include <unistd.h>
+
+int readAndSend(char *sent, int sockfd, struct sockaddr_in dest);
+int requestResponse(char *received, int sockfd, struct sockaddr_in dest, socklen_t *sockz);
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 int main(int argc, char* argv[])
 {
 	
@@ -30,24 +37,55 @@ int main(int argc, char* argv[])
 	// Send data
 	char received[1024];
 	char sent[1024];
+
 	while (1) {
-		printf("Enter the message (type 'exit' to quit): \n");
-		
-		memset(sent, 0, 1024);
-		fgets(sent, sizeof(sent), stdin);
-		if (strcmp(sent, "exit\n") == 0) {
-			close(sockfd);
-			break;
-		}
 
-		int lenSent = sendto(sockfd, sent, strlen(sent), 0, (struct sockaddr*)&dest, sizeof(dest));
-		
-		memset(received, 0, 1024);
-		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, &socksz);
 
-		printf("Server's response: \n");
-		printf("%s", received);
+//		printf("Enter the message (type 'exit' to quit): \n");
+//		
+//		memset(sent, 0, 1024);
+//		fgets(sent, sizeof(sent), stdin);
+//		if (strcmp(sent, "exit\n") == 0) {
+//			close(sockfd);
+//			break;
+//		}
+
+//		int lenSent = sendto(sockfd, sent, strlen(sent), 0, (struct sockaddr*)&dest, sizeof(dest));
+		if(readAndSend(sent, sockfd, dest)==0) break;
+			
+//		memset(received, 0, 1024);
+//		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, &socksz);
+		requestResponse(received, sockfd, dest, &socksz);
+//		printf("Server's response: \n");
+//		printf("%s", received);
 	}
 
 	return 0;
+}
+
+int readAndSend(char *sent, int sockfd, struct sockaddr_in dest)
+{
+
+	printf("Enter the message (type 'exit' to quit): \n");
+	memset(sent, 0, 1024);
+	fgets(sent, sizeof(sent), stdin);
+	if (strcmp(sent, "exit\n") == 0) {
+		close(sockfd);
+		return 0;
+	}
+
+	int lenSent = sendto(sockfd, sent, strlen(sent), 0, (struct sockaddr*)&dest, sizeof(dest));
+
+	return 1;
+}
+
+int requestResponse(char *received, int sockfd, struct sockaddr_in dest, socklen_t *socksz)
+{
+	memset(received, 0, 1024);
+	int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, socksz);
+
+	printf("Server's response: \n");
+	printf("%s", received);
+		
+	return 1;
 }

@@ -7,6 +7,8 @@
 #include <arpa/inet.h>	// inet_pton
 #include <netinet/in.h>
 
+#define NCLIENTS 50
+
 int main(int argc, char* argv[])
 {
 	
