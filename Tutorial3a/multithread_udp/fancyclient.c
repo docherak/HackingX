@@ -6,14 +6,26 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>	// inet_pton
 #include <netinet/in.h>
-
 #include <pthread.h>
 #include <unistd.h>
 
-int readAndSend(char *sent, int sockfd, struct sockaddr_in dest);
-int requestResponse(char *received, int sockfd, struct sockaddr_in dest, socklen_t *sockz);
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutInit = PTHREAD_MUTEX_INITIALIZER;
 
+// Need to use multiple arguments for a function passed through
+// pthread_create, using struct as argument, therefore these two functions:
+void *sendMsg(void *sptr);
+void *recMsg(void *rptr);
+
+// Struct used to pass arguments through functions above
+typedef struct sendInfo {
+	struct sockaddr_in dest;
+	int sckt;
+} sendInfo;
+
+// Global variable for 'exit' option
+int quit = 0;
+
+// Main program
 int main(int argc, char* argv[])
 {
 	
@@ -32,60 +44,110 @@ int main(int argc, char* argv[])
 
 	// Socket
 	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);	
-	socklen_t socksz = sizeof(dest);
+	
+	// Fill the struct to be used in the functions
+	sendInfo si = {
+		.dest = dest,
+		.sckt = sockfd,
+	};	
 
-	// Send data
-	char received[1024];
-	char sent[1024];
+	// Thread for sending	
+	pthread_t sendThread;
+	if(pthread_create(&sendThread, NULL, sendMsg, &si)) {
+		fprintf(stderr, "Error creating thread\n");
+		return 1;	
+	}	
 
+	// Thread for receiving
+	pthread_t recThread;
+	if(pthread_create(&recThread, NULL, recMsg, &si)) {
+		fprintf(stderr, "Error creating thread\n");
+		return 1;	
+	}	
+	
+	// Let the main thread run	
 	while (1) {
-
-
-//		printf("Enter the message (type 'exit' to quit): \n");
-//		
-//		memset(sent, 0, 1024);
-//		fgets(sent, sizeof(sent), stdin);
-//		if (strcmp(sent, "exit\n") == 0) {
-//			close(sockfd);
-//			break;
-//		}
-
-//		int lenSent = sendto(sockfd, sent, strlen(sent), 0, (struct sockaddr*)&dest, sizeof(dest));
-		if(readAndSend(sent, sockfd, dest)==0) break;
-			
-//		memset(received, 0, 1024);
-//		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, &socksz);
-		requestResponse(received, sockfd, dest, &socksz);
-//		printf("Server's response: \n");
-//		printf("%s", received);
+		if (quit == 1) {
+			printf("Quitting...\n");
+			break;
+		}
 	}
 
 	return 0;
 }
 
-int readAndSend(char *sent, int sockfd, struct sockaddr_in dest)
-{
+// Functions
+void *sendMsg(void *sptr) {
+	
+	// Load data into local variable
+	sendInfo si = *((sendInfo *)sptr);
+	
+	// Helper variable for input prompt options
+	int messNo = 1;
+	
+	// Basically Tutorial2b code + mutex:
+	while (1) {
 
-	printf("Enter the message (type 'exit' to quit): \n");
-	memset(sent, 0, 1024);
-	fgets(sent, sizeof(sent), stdin);
-	if (strcmp(sent, "exit\n") == 0) {
-		close(sockfd);
-		return 0;
+		pthread_mutex_lock(&mutInit);
+
+		// Read input	
+		char sent[1024];
+		puts("--------------------");
+		
+		// Different input prompt for the first message and for the rest
+		(messNo == 1) ? printf("Enter your first message (type 'exit' to quit):\n") : printf("Enter next message:\n");
+		memset(sent, 0, 1024);
+		fgets(sent, sizeof(sent), stdin);
+		messNo++;
+
+		// Close the socket if user types 'exit', stop the main thread while loop using global variable and return 0
+		if (strcmp(sent, "exit\n") == 0) {
+			close(si.sckt);
+			quit = 1;
+			break;
+		}
+		
+		// Debug - print thread id no.
+		printf("\ntid: %ld\n", (long)pthread_self());
+
+		// Sent message
+		int lenSent = sendto(si.sckt, sent, strlen(sent), 0, (struct sockaddr*)&(si.dest), sizeof(struct sockaddr));
+		
+		pthread_mutex_unlock(&mutInit);	
+		
+		// So the reply from the server can be optionally read before typing prompt
+		usleep(5000000);
+
 	}
 
-	int lenSent = sendto(sockfd, sent, strlen(sent), 0, (struct sockaddr*)&dest, sizeof(dest));
-
-	return 1;
+	return NULL;
 }
 
-int requestResponse(char *received, int sockfd, struct sockaddr_in dest, socklen_t *socksz)
-{
-	memset(received, 0, 1024);
-	int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&dest, socksz);
+void *recMsg(void *rptr) {
 
-	printf("Server's response: \n");
-	printf("%s", received);
-		
-	return 1;
+	// Load data, create helper variable
+	sendInfo ri = *((sendInfo *) rptr);
+	int sockfd = ri.sckt;	
+	socklen_t socksz = sizeof(ri.dest);
+
+	// Basically Tutorial2b code + mutex:
+	while (1) {
+	
+		char received[1024];
+		memset(received, 0, 1024);
+
+		// Receive message
+		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&(ri.dest), &socksz);
+
+		// Print the server's response using mutex
+		pthread_mutex_lock(&mutInit);
+		puts("--------------------");
+		printf("Server's response: \n");
+		printf("%s\ntid: %ld\n", received, (long)pthread_self());
+		printf("Wait for the prompt...\n");
+		pthread_mutex_unlock(&mutInit);
+
+	}
+	
+	return NULL;
 }
