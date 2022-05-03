@@ -116,7 +116,7 @@ void *sendMsg(void *sptr) {
 		pthread_mutex_unlock(&mutInit);	
 		
 		// So the reply from the server can be optionally read before typing prompt
-		usleep(5000000);
+//		usleep(5000000);
 
 	}
 
@@ -129,7 +129,7 @@ void *recMsg(void *rptr) {
 	sendInfo ri = *((sendInfo *) rptr);
 	int sockfd = ri.sckt;	
 	socklen_t socksz = sizeof(ri.dest);
-
+	
 	// Basically Tutorial2b code + mutex:
 	while (1) {
 	
@@ -140,12 +140,12 @@ void *recMsg(void *rptr) {
 		int lenRecv = recvfrom(sockfd, received, 1024, 0, (struct sockaddr*)&(ri.dest), &socksz);
 
 		// Print the server's response using mutex
-		pthread_mutex_lock(&mutInit);
+//		pthread_mutex_lock(&mutInit);
 		puts("--------------------");
 		printf("Server's response: \n");
 		printf("%s\ntid: %ld\n", received, (long)pthread_self());
 		printf("Wait for the prompt...\n");
-		pthread_mutex_unlock(&mutInit);
+//		pthread_mutex_unlock(&mutInit);
 
 	}
 	
